@@ -29,8 +29,8 @@ import {
   ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import { bookingApi } from '@/services/api';
-import type { QueueItem, Booking, MixStatus, BookingWaybillRelation, WaybillStatusInBooking } from '@/types';
-import { QueueType, QueueTypeMap, MixStatusMap, WaybillStatusMap } from '@/types';
+import type { QueueItem, Booking, QueueType, MixStatus, BookingWaybillRelation } from '@/types';
+import { QueueTypeMap, MixStatusMap, WaybillStatusMap } from '@/types';
 import { useAppStore } from '@/store/useAppStore';
 
 interface QueueTabConfig {
@@ -77,16 +77,16 @@ const QUEUE_TAB_CONFIGS: Record<QueueType, QueueTabConfig> = {
 };
 
 const QueuePage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<QueueType>(QueueType.NORMAL);
+  const [activeTab, setActiveTab] = useState<QueueType>('NORMAL');
   const [loadingMap, setLoadingMap] = useState<Record<QueueType, boolean>>({
-    [QueueType.NORMAL]: false,
-    [QueueType.COLD_CHAIN]: false,
-    [QueueType.CUSTOMS]: false,
+    NORMAL: false,
+    COLD_CHAIN: false,
+    CUSTOMS: false,
   });
   const [queueMap, setQueueMap] = useState<Record<QueueType, QueueItem[]>>({
-    [QueueType.NORMAL]: [],
-    [QueueType.COLD_CHAIN]: [],
-    [QueueType.CUSTOMS]: [],
+    NORMAL: [],
+    COLD_CHAIN: [],
+    CUSTOMS: [],
   });
   const [bookingCache, setBookingCache] = useState<Map<number, Booking>>(new Map());
   const [detailVisible, setDetailVisible] = useState(false);
@@ -109,9 +109,9 @@ const QueuePage: React.FC = () => {
 
   const loadAllQueues = async () => {
     await Promise.all([
-      loadQueueByType(QueueType.NORMAL),
-      loadQueueByType(QueueType.COLD_CHAIN),
-      loadQueueByType(QueueType.CUSTOMS),
+      loadQueueByType('NORMAL'),
+      loadQueueByType('COLD_CHAIN'),
+      loadQueueByType('CUSTOMS'),
     ]);
   };
 
@@ -362,7 +362,7 @@ const QueuePage: React.FC = () => {
                     <span style={{ fontSize: 18, fontWeight: 'bold' }}>{item.plateNumber}</span>
                     <Tag color="success" style={{ fontSize: 14 }}>正在叫号</Tag>
                     {booking?.hasColdChain && <Tag color="cyan">🧊 冷链</Tag>}
-                    {type === QueueType.CUSTOMS && <Tag color="gold">🔍 查验</Tag>}
+                    {type === 'CUSTOMS' && <Tag color="gold">🔍 查验</Tag>}
                   </Space>
                 }
                 description={
@@ -372,8 +372,8 @@ const QueuePage: React.FC = () => {
                     <span>加入时间：{item.joinTime}</span>
                     {config.callHint && (
                       <span style={{ color: config.primaryColor, fontWeight: 'bold' }}>
-                        {type === QueueType.COLD_CHAIN && '🌡️ '}
-                        {type === QueueType.CUSTOMS && '🛃 '}
+                        {type === 'COLD_CHAIN' && '🌡️ '}
+                        {type === 'CUSTOMS' && '🛃 '}
                         {config.callHint}
                       </span>
                     )}
@@ -456,8 +456,8 @@ const QueuePage: React.FC = () => {
         dataIndex: 'waybillStatus',
         key: 'waybillStatus',
         width: 120,
-        render: (status: WaybillStatusInBooking) => {
-          const cfg = WaybillStatusMap[status as WaybillStatusInBooking];
+        render: (status: any) => {
+          const cfg = WaybillStatusMap[status];
           return cfg ? <Tag color={cfg.color}>{cfg.label}</Tag> : status;
         },
       },
