@@ -230,7 +230,7 @@ public class BusinessValidator {
 
     private void validateActiveBooking(String waybillId, List<String> errors) {
         List<com.airport.cargo.entity.Booking> activeBookings = 
-            waybillMapper.findActiveByWaybillId(waybillId.toString());
+            waybillMapper.findActiveByWaybillId(waybillId);
         if (!activeBookings.isEmpty()) {
             errors.add("该运单已有进行中的预约");
         }

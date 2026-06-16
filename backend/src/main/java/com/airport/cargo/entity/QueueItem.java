@@ -22,6 +22,8 @@ public class QueueItem extends BaseEntity {
 
     private String driverName;
 
+    private String queueType;
+
     private Integer position;
 
     private Integer priority;
@@ -35,6 +37,10 @@ public class QueueItem extends BaseEntity {
     private Integer requeueCount;
 
     private LocalDateTime estimatedCallTime;
+
+    private LocalDateTime estimatedArrivalWindowStart;
+
+    private LocalDateTime estimatedArrivalWindowEnd;
 
     private String status;
 

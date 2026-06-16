@@ -67,9 +67,9 @@ public class StateMachineEngine {
             log.warn("序列化预约单数据失败", e);
         }
 
-        OperationLog log = createOperationLog(booking, operationType, oldStatus, targetStatus, 
+        OperationLog opLog = createOperationLog(booking, operationType, oldStatus, targetStatus, 
             operatorId, operatorName, operatorRole, reason, remark, beforeData, afterData);
-        operationLogMapper.insert(log);
+        operationLogMapper.insert(opLog);
 
         log.info("状态机流转成功: bookingNo={}, {} -> {}, operation={}", 
             booking.getBookingNo(), oldStatus.getCode(), targetStatus.getCode(), operationType.getCode());
@@ -104,9 +104,9 @@ public class StateMachineEngine {
     public void logOperation(Booking booking, OperationType operationType, 
                              String operatorId, String operatorName, RoleType operatorRole,
                              String reason, String remark) {
-        OperationLog log = createOperationLog(booking, operationType, booking.getStatus(), 
+        OperationLog opLog = createOperationLog(booking, operationType, booking.getStatus(), 
             booking.getStatus(), operatorId, operatorName, operatorRole, reason, remark, null, null);
-        operationLogMapper.insert(log);
+        operationLogMapper.insert(opLog);
     }
 
     public boolean canTransition(BookingStatus current, BookingStatus target) {

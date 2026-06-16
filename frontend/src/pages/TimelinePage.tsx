@@ -91,14 +91,22 @@ const TimelinePage: React.FC = () => {
     loadData(b.id);
   };
 
-  const operationTypeMap: Record<OperationType, { label: string; color: string; icon: React.ReactNode }> = {
+  const operationTypeMap: Partial<Record<OperationType, { label: string; color: string; icon: React.ReactNode }>> = {
     [OperationType.CREATE]: { label: '创建预约', color: 'blue', icon: <ClockCircleOutlined /> },
     [OperationType.SUBMIT]: { label: '提交预约', color: 'blue', icon: <CarOutlined /> },
     [OperationType.OWNERSHIP_VERIFY]: { label: '货权审核通过', color: 'green', icon: <CheckCircleOutlined /> },
     [OperationType.OWNERSHIP_REJECT]: { label: '货权审核驳回', color: 'red', icon: <CloseCircleOutlined /> },
+    [OperationType.CUSTOMS_DRAW]: { label: '海关抽签', color: 'gold', icon: <WarningOutlined /> },
+    [OperationType.CUSTOMS_INSPECT]: { label: '海关查验', color: 'gold', icon: <SafetyOutlined /> },
+    [OperationType.CUSTOMS_PASS]: { label: '海关放行', color: 'green', icon: <CheckCircleOutlined /> },
+    [OperationType.CUSTOMS_HOLD]: { label: '海关暂扣', color: 'red', icon: <CloseCircleOutlined /> },
+    [OperationType.PARTIAL_RELEASE]: { label: '部分放行', color: 'orange', icon: <WarningOutlined /> },
     [OperationType.JOIN_QUEUE]: { label: '加入排队', color: 'blue', icon: <ClockCircleOutlined /> },
     [OperationType.LEAVE_QUEUE]: { label: '离开排队', color: 'orange', icon: <CarOutlined /> },
     [OperationType.REQUEUE]: { label: '重新排队', color: 'orange', icon: <ClockCircleOutlined /> },
+    [OperationType.QUEUE_RECALCULATE]: { label: '队列重算', color: 'orange', icon: <ClockCircleOutlined /> },
+    [OperationType.WINDOW_RECALCULATE]: { label: '窗口重算', color: 'orange', icon: <ClockCircleOutlined /> },
+    [OperationType.VOUCHER_REISSUE]: { label: '凭证重发', color: 'blue', icon: <ClockCircleOutlined /> },
     [OperationType.SECURITY_CHECK]: { label: '安保检查通过', color: 'green', icon: <SafetyOutlined /> },
     [OperationType.SECURITY_REJECT]: { label: '安保检查驳回', color: 'red', icon: <CloseCircleOutlined /> },
     [OperationType.START_PICKUP]: { label: '开始提货', color: 'blue', icon: <CarOutlined /> },

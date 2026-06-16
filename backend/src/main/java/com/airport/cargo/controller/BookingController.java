@@ -127,4 +127,43 @@ public class BookingController {
     public Result<Integer> getQueuePosition(@Parameter(description = "预约ID") @RequestParam Long bookingId) {
         return Result.success(queueService.getCurrentPosition(bookingId));
     }
+
+    @Operation(summary = "多运单提交预约", description = "货代提交多票货的提货预约(一车多票)")
+    @PostMapping("/multi-submit")
+    public Result<Booking> submitMultiBooking(@Valid @RequestBody BookingMultiSubmitDTO dto) {
+        return Result.success(bookingService.createMultiBooking(dto));
+    }
+
+    @Operation(summary = "按类型获取排队列表", description = "NORMAL普通队列/COLD_CHAIN冷链队列/CUSTOMS查验队列")
+    @GetMapping("/queue/by-type/{type}")
+    public Result<List<QueueItem>> getQueueListByType(
+            @Parameter(description = "队列类型 NORMAL/COLD_CHAIN/CUSTOMS") @PathVariable String type) {
+        return Result.success(queueService.getActiveQueueByType(
+                com.airport.cargo.enums.QueueType.fromCode(type)));
+    }
+
+    @Operation(summary = "开始海关查验", description = "海关人员开始对抽中货物进行查验")
+    @PostMapping("/customs/start")
+    public Result<Booking> startCustomsInspect(@Valid @RequestBody CustomsInspectDTO dto) {
+        return Result.success(bookingService.startCustomsInspect(dto));
+    }
+
+    @Operation(summary = "海关查验结果处理", description = "处理查验结果：逐票通过/暂扣/部分放行")
+    @PostMapping("/customs/result")
+    public Result<Booking> processCustomsResult(@Valid @RequestBody CustomsInspectDTO dto) {
+        return Result.success(bookingService.processCustomsInspectResult(dto));
+    }
+
+    @Operation(summary = "触发三重重算", description = "手动触发队列重算、到场窗口重算、放行凭证重开")
+    @PostMapping("/recalculate")
+    public Result<QueueRecalculateDTO> triggerRecalculate(@Valid @RequestBody QueueRecalculateDTO dto) {
+        return Result.success(queueService.recalculate(dto));
+    }
+
+    @Operation(summary = "查询运单关联明细", description = "查询预约单下的多票运单状态")
+    @GetMapping("/{id}/waybills")
+    public Result<List<com.airport.cargo.entity.BookingWaybillRelation>> getWaybillRelations(
+            @Parameter(description = "预约ID") @PathVariable Long id) {
+        return Result.success(bookingService.getWaybillRelations(id));
+    }
 }

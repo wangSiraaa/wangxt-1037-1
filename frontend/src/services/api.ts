@@ -1,5 +1,13 @@
 import axios from 'axios';
-import type { Booking, OperationLog, QueueItem, Result, PageResult } from '@/types';
+import type {
+  Booking,
+  OperationLog,
+  QueueItem,
+  Result,
+  PageResult,
+  BookingWaybillRelation,
+  QueueType,
+} from '@/types';
 
 const request = axios.create({
   baseURL: '/api',
@@ -33,6 +41,19 @@ export const bookingApi = {
     remark?: string;
   }) => request.post<any, Booking>('/booking/submit', data),
 
+  submitMulti: (data: {
+    waybillNoList: string[];
+    plateNumber: string;
+    driverName: string;
+    driverPhone: string;
+    expectedArrivalStart: string;
+    expectedArrivalEnd: string;
+    forwarderId?: string;
+    forwarderName?: string;
+    forwarderContact?: string;
+    remark?: string;
+  }) => request.post<any, Booking>('/booking/multi-submit', data),
+
   verifyOwnership: (data: {
     bookingId: number;
     pickupOrderNo: string;
@@ -42,11 +63,42 @@ export const bookingApi = {
     operatorName?: string;
   }) => request.post<any, Booking>('/booking/ownership/verify', data),
 
+  startCustomsInspect: (data: {
+    bookingId: number;
+    operatorId?: string;
+    operatorName?: string;
+    remark?: string;
+  }) => request.post<any, Booking>('/booking/customs/start', data),
+
+  processCustomsResult: (data: {
+    bookingId: number;
+    operatorId?: string;
+    operatorName?: string;
+    remark?: string;
+    inspectItems?: Array<{
+      relationId: number;
+      passed?: boolean;
+      piecesHeld?: number;
+      piecesReleased?: number;
+      inspectRemark?: string;
+    }>;
+  }) => request.post<any, Booking>('/booking/customs/result', data),
+
   joinQueue: (params: {
     bookingId: number;
     operatorId?: string;
     operatorName?: string;
   }) => request.post<any, Booking>('/booking/queue/join', null, { params }),
+
+  triggerRecalculate: (data: {
+    bookingId: number;
+    triggerReason?: string;
+    recalculateQueue?: boolean;
+    recalculateWindow?: boolean;
+    reissueVoucher?: boolean;
+    operatorId?: string;
+    operatorName?: string;
+  }) => request.post<any, any>('/booking/recalculate', data),
 
   securityCheck: (data: {
     bookingId: number;
@@ -96,6 +148,9 @@ export const bookingApi = {
 
   getDetail: (id: number) => request.get<any, Booking>(`/booking/${id}`),
 
+  getWaybillRelations: (id: number) =>
+    request.get<any, BookingWaybillRelation[]>(`/booking/${id}/waybills`),
+
   getLogs: (id: number) => request.get<any, OperationLog[]>(`/booking/${id}/logs`),
 
   getPage: (params: {
@@ -106,6 +161,9 @@ export const bookingApi = {
   }) => request.get<any, PageResult<Booking>>('/booking/page', { params }),
 
   getQueueList: () => request.get<any, QueueItem[]>('/booking/queue/list'),
+
+  getQueueListByType: (type: QueueType) =>
+    request.get<any, QueueItem[]>(`/booking/queue/by-type/${type}`),
 
   getQueuePosition: (bookingId: number) =>
     request.get<any, number>('/booking/queue/position', { params: { bookingId } }),

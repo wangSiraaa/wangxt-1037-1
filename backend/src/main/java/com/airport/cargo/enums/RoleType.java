@@ -8,6 +8,8 @@ public enum RoleType {
     FORWARDER("FORWARDER", "货代"),
     WAREHOUSE("WAREHOUSE", "仓库管理员"),
     SECURITY("SECURITY", "安保人员"),
+    CUSTOMS("CUSTOMS", "海关"),
+    SYSTEM("SYSTEM", "系统"),
     ADMIN("ADMIN", "管理员");
 
     private final String code;

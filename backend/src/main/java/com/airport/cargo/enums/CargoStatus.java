@@ -8,6 +8,7 @@ public enum CargoStatus {
     NORMAL("NORMAL", "正常"),
     LOCKED("LOCKED", "监管锁定"),
     DETAINED("DETAINED", "暂扣"),
+    CUSTOMS_HOLD("CUSTOMS_HOLD", "海关暂扣"),
     LOST("LOST", "丢失"),
     DAMAGED("DAMAGED", "损坏");
 

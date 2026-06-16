@@ -25,6 +25,16 @@ public class Booking extends BaseEntity {
 
     private String waybillNo;
 
+    private Integer waybillCount;
+
+    private Boolean hasColdChain;
+
+    private Boolean hasCustomsHold;
+
+    private String mixStatus;
+
+    private String queueType;
+
     private String vehicleId;
 
     private String plateNumber;
@@ -48,6 +58,10 @@ public class Booking extends BaseEntity {
     private BookingStatus status;
 
     private String pickupOrderNo;
+
+    private String releaseVoucherNo;
+
+    private String releaseVoucherStatus;
 
     private Boolean ownershipVerified;
 
@@ -90,4 +104,7 @@ public class Booking extends BaseEntity {
     private String remark;
 
     private Integer version;
+
+    @com.baomidou.mybatisplus.annotation.TableField(exist = false)
+    private java.util.List<com.airport.cargo.entity.BookingWaybillRelation> waybillRelations;
 }

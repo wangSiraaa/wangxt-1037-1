@@ -6,7 +6,7 @@ import json
 from datetime import datetime, timedelta
 import sys
 
-BASE_URL = "http://localhost:8080"
+BASE_URL = "http://localhost:8080/api"
 
 class CargoPickupTester:
     def __init__(self):
@@ -55,7 +55,7 @@ class CargoPickupTester:
             # 步骤1：货代提交预约
             self.log("步骤1：货代提交预约")
             submit_data = {
-                "waybillNo": "WB202401001",
+                "waybillNo": "WB20240601001",
                 "plateNumber": "京A12345",
                 "driverName": "张三",
                 "driverPhone": "13800138000",
@@ -176,7 +176,7 @@ class CargoPickupTester:
             # 提交预约
             self.log("步骤1：提交预约")
             submit_data = {
-                "waybillNo": "WB202401002",
+                "waybillNo": "WB20240601002",
                 "plateNumber": "京B67890",
                 "driverName": "李四",
                 "driverPhone": "13900139000",
@@ -238,8 +238,8 @@ class CargoPickupTester:
             # 提交预约
             self.log("步骤1：提交预约")
             submit_data = {
-                "waybillNo": "WB202401003",
-                "plateNumber": "京C11111",
+                "waybillNo": "WB20240601003",
+                "plateNumber": "京B67890",
                 "driverName": "王五",
                 "driverPhone": "13700137000",
                 "expectedArrivalStart": future_start.isoformat() + "Z",
@@ -275,7 +275,7 @@ class CargoPickupTester:
             self.log("步骤4：安保检查驳回")
             reject_data = {
                 "bookingId": booking_id,
-                "plateNumber": "京C11111",
+                "plateNumber": "京B67890",
                 "checkPass": False,
                 "remark": "司机驾驶证已过期30天，证件无效",
                 "operatorId": "S001",
@@ -318,8 +318,8 @@ class CargoPickupTester:
             # 提交预约
             self.log("步骤1：提交预约")
             submit_data = {
-                "waybillNo": "WB202401004",
-                "plateNumber": "京D22222",
+                "waybillNo": "WB20240601001",
+                "plateNumber": "京A12345",
                 "driverName": "赵六",
                 "driverPhone": "13600136000",
                 "expectedArrivalStart": future_start.isoformat() + "Z",
@@ -356,7 +356,7 @@ class CargoPickupTester:
             self.log("步骤4：变更车辆")
             change_data = {
                 "bookingId": booking_id,
-                "newPlateNumber": "京D88888",
+                "newPlateNumber": "京A12345",
                 "newDriverName": "钱七",
                 "newDriverPhone": "13500135000",
                 "changeReason": "原车辆故障，更换车辆",
@@ -400,8 +400,8 @@ class CargoPickupTester:
             # 提交预约
             self.log("步骤1：提交预约")
             submit_data = {
-                "waybillNo": "WB202401005",
-                "plateNumber": "京E33333",
+                "waybillNo": "WB20240601001",
+                "plateNumber": "京A12345",
                 "driverName": "孙八",
                 "driverPhone": "13400134000",
                 "expectedArrivalStart": future_start.isoformat() + "Z",
@@ -437,7 +437,7 @@ class CargoPickupTester:
             self.log("步骤4：安保检查")
             security_data = {
                 "bookingId": booking_id,
-                "plateNumber": "京E33333",
+                "plateNumber": "京A12345",
                 "checkPass": True,
                 "operatorId": "S001",
                 "operatorName": "王安保"
@@ -498,8 +498,8 @@ class CargoPickupTester:
             # 提交预约
             self.log("步骤1：提交预约")
             submit_data = {
-                "waybillNo": "WB202401006",
-                "plateNumber": "京F44444",
+                "waybillNo": "WB20240601001",
+                "plateNumber": "京A12345",
                 "driverName": "周九",
                 "driverPhone": "13300133000",
                 "expectedArrivalStart": future_start.isoformat() + "Z",

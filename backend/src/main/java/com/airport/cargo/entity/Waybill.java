@@ -34,6 +34,20 @@ public class Waybill extends BaseEntity {
 
     private CargoStatus cargoStatus;
 
+    private Boolean temperatureControlled;
+
+    private String temperatureRange;
+
+    private Boolean customsInspected;
+
+    private LocalDateTime customsInspectTime;
+
+    private String customsInspectOperator;
+
+    private String customsInspectResult;
+
+    private String customsInspectRemark;
+
     private String lockReason;
 
     private LocalDateTime lockTime;

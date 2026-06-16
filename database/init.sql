@@ -15,6 +15,13 @@ CREATE TABLE waybill (
     cargo_owner VARCHAR(128) COMMENT '货主',
     cargo_owner_contact VARCHAR(32) COMMENT '货主联系方式',
     cargo_status VARCHAR(32) DEFAULT 'NORMAL' COMMENT '货物状态',
+    temperature_controlled TINYINT DEFAULT 0 COMMENT '是否温控货物(冷链)',
+    temperature_range VARCHAR(32) COMMENT '温控范围(如2-8°C)',
+    customs_inspected TINYINT DEFAULT 0 COMMENT '是否海关抽检',
+    customs_inspect_time DATETIME COMMENT '海关抽检时间',
+    customs_inspect_operator VARCHAR(64) COMMENT '海关抽检操作人',
+    customs_inspect_result VARCHAR(16) COMMENT '海关抽检结果:PASSED/HELD',
+    customs_inspect_remark VARCHAR(512) COMMENT '海关抽检备注',
     lock_reason VARCHAR(256) COMMENT '锁定原因',
     lock_time DATETIME COMMENT '锁定时间',
     lock_operator VARCHAR(64) COMMENT '锁定操作人',
@@ -28,7 +35,9 @@ CREATE TABLE waybill (
     deleted TINYINT DEFAULT 0 COMMENT '删除标记',
     INDEX idx_waybill_no (waybill_no),
     INDEX idx_cargo_owner (cargo_owner),
-    INDEX idx_status (cargo_status)
+    INDEX idx_status (cargo_status),
+    INDEX idx_temp_controlled (temperature_controlled),
+    INDEX idx_customs (customs_inspected)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='运单表';
 
 DROP TABLE IF EXISTS vehicle;
@@ -72,8 +81,13 @@ CREATE TABLE booking (
     forwarder_id VARCHAR(32) COMMENT '货代ID',
     forwarder_name VARCHAR(128) COMMENT '货代名称',
     forwarder_contact VARCHAR(32) COMMENT '货代联系方式',
-    waybill_id VARCHAR(32) COMMENT '运单ID',
-    waybill_no VARCHAR(64) COMMENT '运单号',
+    waybill_id VARCHAR(32) COMMENT '运单ID(兼容单运单模式)',
+    waybill_no VARCHAR(64) COMMENT '运单号(兼容单运单模式)',
+    waybill_count INT DEFAULT 1 COMMENT '关联运单数量',
+    has_cold_chain TINYINT DEFAULT 0 COMMENT '是否含冷链货物',
+    has_customs_hold TINYINT DEFAULT 0 COMMENT '是否含海关暂扣货物',
+    mix_status VARCHAR(32) COMMENT '混合状态:ALL_CLEAR/PARTIAL_HOLD/ALL_HOLD',
+    queue_type VARCHAR(32) DEFAULT 'NORMAL' COMMENT '队列类型:NORMAL/COLD_CHAIN/CUSTOMS',
     vehicle_id VARCHAR(32) COMMENT '车辆ID',
     plate_number VARCHAR(16) COMMENT '车牌号',
     driver_id VARCHAR(32) COMMENT '司机ID',
@@ -86,6 +100,8 @@ CREATE TABLE booking (
     queue_id VARCHAR(64) COMMENT '排队ID',
     status VARCHAR(32) NOT NULL COMMENT '预约状态',
     pickup_order_no VARCHAR(64) COMMENT '提货单号',
+    release_voucher_no VARCHAR(64) COMMENT '放行凭证号',
+    release_voucher_status VARCHAR(16) COMMENT '放行凭证状态:VALID/INVALID/REISSUED',
     ownership_verified TINYINT DEFAULT 0 COMMENT '货权是否确认',
     ownership_operator VARCHAR(64) COMMENT '货权确认人',
     ownership_time DATETIME COMMENT '货权确认时间',
@@ -117,6 +133,8 @@ CREATE TABLE booking (
     INDEX idx_plate_number (plate_number),
     INDEX idx_status (status),
     INDEX idx_queue_position (queue_position),
+    INDEX idx_queue_type (queue_type),
+    INDEX idx_mix_status (mix_status),
     INDEX idx_create_time (create_time)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='预约单表';
 
@@ -128,6 +146,7 @@ CREATE TABLE queue_item (
     booking_no VARCHAR(64) COMMENT '预约单号',
     plate_number VARCHAR(16) COMMENT '车牌号',
     driver_name VARCHAR(64) COMMENT '司机姓名',
+    queue_type VARCHAR(32) DEFAULT 'NORMAL' COMMENT '队列类型:NORMAL/COLD_CHAIN/CUSTOMS',
     position INT NOT NULL COMMENT '排队位置',
     priority INT DEFAULT 10 COMMENT '优先级',
     join_time DATETIME COMMENT '加入时间',
@@ -135,6 +154,8 @@ CREATE TABLE queue_item (
     leave_reason VARCHAR(256) COMMENT '离开原因',
     requeue_count INT DEFAULT 0 COMMENT '重新排队次数',
     estimated_call_time DATETIME COMMENT '预计叫号时间',
+    estimated_arrival_window_start DATETIME COMMENT '重算后预计到场窗口开始',
+    estimated_arrival_window_end DATETIME COMMENT '重算后预计到场窗口结束',
     status VARCHAR(16) DEFAULT 'ACTIVE' COMMENT '状态',
     remark VARCHAR(512) COMMENT '备注',
     create_time DATETIME COMMENT '创建时间',
@@ -145,8 +166,36 @@ CREATE TABLE queue_item (
     INDEX idx_queue_code (queue_code),
     INDEX idx_booking_id (booking_id),
     INDEX idx_position (position),
-    INDEX idx_status (status)
+    INDEX idx_status (status),
+    INDEX idx_queue_type (queue_type)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='排队队列表';
+
+DROP TABLE IF EXISTS booking_waybill_relation;
+CREATE TABLE booking_waybill_relation (
+    id BIGINT PRIMARY KEY COMMENT '主键ID',
+    booking_id BIGINT NOT NULL COMMENT '预约ID',
+    booking_no VARCHAR(64) COMMENT '预约单号',
+    waybill_id BIGINT NOT NULL COMMENT '运单ID',
+    waybill_no VARCHAR(64) COMMENT '运单号',
+    waybill_status VARCHAR(32) DEFAULT 'PENDING' COMMENT '该运单在预约中的状态:PENDING/CLEARED/CUSTOMS_HOLD/PARTIALLY_PICKED/FULLY_PICKED',
+    customs_inspected TINYINT DEFAULT 0 COMMENT '是否海关抽检',
+    customs_inspect_result VARCHAR(16) COMMENT '抽检结果:PASSED/HELD',
+    pieces_held INT DEFAULT 0 COMMENT '暂扣件数',
+    pieces_released INT DEFAULT 0 COMMENT '已放行件数',
+    pieces_picked INT DEFAULT 0 COMMENT '已提件数',
+    total_pieces INT COMMENT '运单总件数',
+    temperature_controlled TINYINT DEFAULT 0 COMMENT '是否温控',
+    remark VARCHAR(512) COMMENT '备注',
+    create_time DATETIME COMMENT '创建时间',
+    update_time DATETIME COMMENT '更新时间',
+    create_by VARCHAR(64) COMMENT '创建人',
+    update_by VARCHAR(64) COMMENT '更新人',
+    deleted TINYINT DEFAULT 0 COMMENT '删除标记',
+    INDEX idx_booking_id (booking_id),
+    INDEX idx_waybill_id (waybill_id),
+    INDEX idx_waybill_status (waybill_status),
+    INDEX idx_customs (customs_inspected)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='预约单-运单多对多关系表';
 
 DROP TABLE IF EXISTS operation_log;
 CREATE TABLE operation_log (

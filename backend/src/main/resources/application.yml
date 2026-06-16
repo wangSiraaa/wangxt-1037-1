@@ -12,7 +12,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${DB_HOST:127.0.0.1}:${DB_PORT:3306}/${DB_NAME:cargo_pickup}?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: ${DB_USER:root}
-    password: ${DB_PASSWORD:root}
+    password: ${DB_PASSWORD:root123456}
   data:
     redis:
       host: ${REDIS_HOST:127.0.0.1}
@@ -48,6 +48,16 @@ knife4j:
     version: 1.0.0
     concat: developer@airport.com
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+
 app:
   security:
     token-expire-hours: 24
@@ -55,3 +65,13 @@ app:
     window-duration-minutes: 30
     max-queue-size: 50
     auto-cancel-minutes: 60
+    customs-draw-probability: 0.15
+  queue:
+    max-normal-queue-size: 50
+    max-cold-chain-queue-size: 20
+    max-customs-queue-size: 30
+    average-minutes-per-pickup: 15
+    cold-chain-priority-bonus: 10
+    near-arrival-priority-bonus: 5
+    partial-delivery-priority-bonus: 3
+    partial-hold-priority-bonus: 2
